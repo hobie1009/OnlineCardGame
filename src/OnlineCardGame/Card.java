@@ -10,6 +10,9 @@ private String valueAsString;
 		char c = v.charAt(0);
 		if (Character.isDigit(c)) {
 			value = Integer.parseInt("" + c);
+			if (value == 0) {
+				value = 10;
+			}
 		} else {
 			if (c == 'A') {
 				value = 1;
@@ -19,7 +22,7 @@ private String valueAsString;
 		}
 		System.out.println("value" + value);
 	}
-	public String getURL() {
+	public String getImageURL() {
 		return imageURL;
 	}
 	public int getValue() {

@@ -8,6 +8,7 @@ public class OnlineCardGame {
 	public OnlineCardGame() {
 		try {
 			ServerSocket server = new ServerSocket(8080);
+			System.out.println("Sever Started");
 			while (true) {
 				Socket client = server.accept();
 				Thread thread = new Thread(new ClientHandler(client));
