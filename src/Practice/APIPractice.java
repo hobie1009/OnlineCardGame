@@ -30,13 +30,10 @@ public class APIPractice implements ActionListener {
         APIPractice apiPractice = new APIPractice();
         deckID = apiPractice.newDeck();
         initial = apiPractice.getCard();
+        System.out.println("Deck ID: " + apiPractice.deckID);
+        System.out.println("Card URL: " + initial.getURL());
+
         apiPractice.initGUI();
-        System.out.println(apiPractice.deckID);
-        System.out.println(initial.getURL());
-        String cardUrl = initial.getURL().substring(38, initial.getURL().length());
-        System.out.println(cardUrl);
-        apiPractice.downloadImage(cardUrl);
-        //https://deckofcardsapi.com/static/img/2C.png
 
     }
 
@@ -90,52 +87,13 @@ public class APIPractice implements ActionListener {
 
     //OTHER METHODS
     public void initGUI() throws IOException {
-        /*frame = new JFrame("Blackjack");
+        frame = new JFrame("BlackJack");
+        frame.setSize(300, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        ImageIcon icon = new ImageIcon("C:\\Users\\legio\\OneDrive\\Desktop\\ORK.png");
-        label = new JLabel(icon);
-        frame.add(label);
-        frame.pack();
-        frame.setVisible(true);*/
+        frame.setVisible(true);
 
-        /*frame = new JFrame("Blackjack");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        ImageIcon icon = new ImageIcon("C:\\Users\\legio\\OneDrive\\Documents\\4H.png");
-        System.out.println(initial.getURL());
-        label = new JLabel(icon);
-        frame.add(label);
-        frame.pack();
-        frame.setVisible(true);*/
 
-        System.out.println(initial.getURL());
-
-    }
-    public void downloadImage(String cardUrl){
-        try{
-            String fileName = cardUrl;
-            String website = "https://deckofcardsapi.com/static/img/"+fileName;
-
-            System.out.println("Downloading File From: " + website);
-
-            URL url = new URL(website);
-            InputStream inputStream = url.openStream();
-            OutputStream outputStream = new FileOutputStream(fileName);
-            byte[] buffer = new byte[2048];
-
-            int length = 0;
-
-            while ((length = inputStream.read(buffer)) != -1) {
-                System.out.println("Buffer Read of length: " + length);
-                outputStream.write(buffer, 0, length);
-            }
-
-            inputStream.close();
-            outputStream.close();
-
-        } catch(Exception e) {
-            System.out.println("Exception: " + e.getMessage());
-        }
     }
 
     //ACTION LISTENER
