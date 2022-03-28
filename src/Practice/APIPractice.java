@@ -23,6 +23,7 @@ public class APIPractice implements ActionListener {
     JPanel panel = new JPanel();
     JButton drawCard = new JButton();
     JLabel label  = new JLabel();
+    String address;
     public static Card initial;
 
     //Either make newDeck static or create APIPractice Object
@@ -92,6 +93,14 @@ public class APIPractice implements ActionListener {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
+        label = new JLabel();
+        frame.add(label);
+
+        address = initial.getURL();
+        label.setIcon(new ImageIcon(new URL(address)));
+        frame.add(label);
+        frame.setVisible(true);
+        frame.pack();
 
 
     }
