@@ -16,160 +16,127 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.net.ssl.HttpsURLConnection;
 
+//Implements Runnable to multi-thread. Don't *need* it for this, but it makes our program more convenient/easy to write
 public class ClientHandler implements Runnable {
-	Socket client;
-	String deckID;
-	ArrayList<Card> clientsCards = new ArrayList<Card>();
+    Socket client;
+    String deckID;
+    String imageURL = "https://deckofcardsapi.com/static/img/";
+    ArrayList<Card> clientsCards = new ArrayList<Card>();
+    Card firstCard;
+    Card secondCard;
 
-	public ClientHandler(Socket c) {
-		client = c;
-	}
+    //create constructor so we can access it in OnlineCardGame
+   /* public ClientHandler(Socket socket){
+        client = socket;
+    }*/
+    public static void main(String [] args){
+        new ClientHandler();
+    }
+    public ClientHandler() {
+        deckID = getNewDeckID();
+        System.out.println(deckID);
+        JsonObject jsonObject = getContents();
+        System.out.println(jsonObject);
+        System.out.println(getRandomCard());
+    }
 
-	public void run() {
+    @Override
+    public void run() {
+    }
 
-		try {
-			InputStream in = client.getInputStream();
-			String content = "";
-			int letter = in.read();
-			boolean ignore = false;
-			boolean continuePlay = false;
-			while (letter != -1) {
-				content += (char) letter;
-				if (content.equals("\r")) {
-					break;
-				}
-				if (letter == '\n') {
-					if (content.contains("GET")) {
-						String[] words = content.split(" ");
-						
-						if (!words[1].equals("/")) {
-							if (words[1].contains("favicon.ico")) {
-								ignore = true;
-							} else {
-								continuePlay = true;
-								System.out.println("words [1]" + words[1]);
-							}
-						}
-					}
-					content = "";
-				}
-				letter = in.read();
-			}
-			if (ignore) {
-				client.getOutputStream().close();
-				return;
-			} else if (continuePlay) {
-				System.out.println("Continuing a game");
-			} else {
-				deckID = getNewDeckID();
-				System.out.println(deckID);
-				Card c = getRandomCard();
-				Card b = getRandomCard();
-				// Get card image from API
 
-				String sendContents = deckID + "&";
-				sendContents += c.getValueAsString() + "&";
-				sendContents += b.getValueAsString();
 
-				String http = "<html><div id = \"divID\"><img src=\"" + c.getURL() + "\"></html>" + "<img src=\""
-						+ b.getURL() + "\">" + "<br>" + "<h1>" + (c.getValue() + b.getValue()) + "</h1>"
-						+ "<button onclick=\"buttonClicked()\">click me</button>" + "<script>"
-						+ "function buttonClicked (){" 
-						+ "var connection = new XMLHttpRequest();"
-						+ "connection.open(\"GET\", \"http://localhost:8080/"+ sendContents +"\");" 
-						+ "connection.send();"
-						+ "connection.onreadystatechange = function (){" 
-						+ "   if(connection.readyState == 4){"
-						+ "     var d = document.getElementById (\"divID\");" 
-						+ "d.innerHTML = connection.response"
-						+ "    }" 
-						+ "  }"
-						+ "}" 
-						+ "</script>" 
-						+ "</div></html>";
-				OutputStream out = client.getOutputStream();
-				String output = "HTTP/1.1 200 \r\n";
-				output += "Content-Type: text/html\r\n";
-				output += "Content-Length: " + http.length();
-				output += "\r\n\r\n";
-				out.write(output.getBytes());
-				out.write(http.getBytes());
 
-				in.close();
-				out.flush();
-				out.close();
+    //Creates a jsonObject from a string(converts it bc its already a 'json object' just not in the right form
+    private JsonObject getJsonObjectFromString(String s) {
+        JsonReader jsonReader = Json.createReader(new StringReader(s));
 
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+        JsonObject obj = jsonReader.readObject();
+        jsonReader.close();
+        return obj;
+    }
+    JsonObject getContents(){
+        JsonObject jsonObject = null;
+        URL cardAPIURl;
+        try {
+            cardAPIURl = new URL("https://deckofcardsapi.com/api/deck/new/shuffle");
+            HttpsURLConnection connection = (HttpsURLConnection) cardAPIURl.openConnection();
+            connection.setRequestProperty("User-Agent", "");
+            InputStream cardResponse = connection.getInputStream();
+            String fullResponse = "";
+            int letter = cardResponse.read();
 
-	Card getRandomCard() {
-		URL cardAPIURl;
-		try {
-			cardAPIURl = new URL("https://deckofcardsapi.com/api/deck/" + deckID + "/draw");
-			HttpsURLConnection connection = (HttpsURLConnection) cardAPIURl.openConnection();
-			connection.setRequestProperty("User-Agent", "");
-			InputStream cardResponse = connection.getInputStream();
-			String fullResponse = "";
-			int letter = cardResponse.read();
+            while (letter != -1) {
+                fullResponse += (char) letter;
+                letter = cardResponse.read();
+            }
+            connection.disconnect();
+            jsonObject = getJsonObjectFromString(fullResponse);
 
-			while (letter != -1) {
-				fullResponse += (char) letter;
-				letter = cardResponse.read();
-			}
-			connection.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
 
-			JsonObject jobj = getJsonObjectFromString(fullResponse);
-			JsonArray jarr = jobj.getJsonArray("cards");
-			String code = ((JsonObject) jarr.get(0)).getString("code");
-			String pic = ((JsonObject) jarr.get(0)).getString("image");
-			Card c = new Card(pic, code);
 
-			return c;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 
-	private JsonObject getJsonObjectFromString(String s) {
-		JsonReader jsonReader = Json.createReader(new StringReader(s));
+    //GAME RELATED
+    String getNewDeckID() {
+        URL cardAPIURl;
+        String id = "";
+        try {
+            cardAPIURl = new URL("https://deckofcardsapi.com/api/deck/new/shuffle");
+            HttpsURLConnection connection = (HttpsURLConnection) cardAPIURl.openConnection();
+            connection.setRequestProperty("User-Agent", "");
+            InputStream cardResponse = connection.getInputStream();
+            String fullResponse = "";
+            int letter = cardResponse.read();
 
-		JsonObject obj = jsonReader.readObject();
-		jsonReader.close();
-		return obj;
-	}
+            while (letter != -1) {
+                fullResponse += (char) letter;
+                letter = cardResponse.read();
+            }
+            connection.disconnect();
+            JsonObject jobj = getJsonObjectFromString(fullResponse);
+            id = jobj.getString("deck_id");
 
-	String getNewDeckID() {
-		URL cardAPIURl;
-		String id = "";
-		try {
-			cardAPIURl = new URL("https://deckofcardsapi.com/api/deck/new/shuffle");
-			HttpsURLConnection connection = (HttpsURLConnection) cardAPIURl.openConnection();
-			connection.setRequestProperty("User-Agent", "");
-			InputStream cardResponse = connection.getInputStream();
-			String fullResponse = "";
-			int letter = cardResponse.read();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return id;
 
-			while (letter != -1) {
-				fullResponse += (char) letter;
-				letter = cardResponse.read();
-			}
-			connection.disconnect();
-			JsonObject jobj = getJsonObjectFromString(fullResponse);
-			id = jobj.getString("deck_id");
+    }
+    Card getRandomCard(){
+        JsonObject jsonObject = null;
+        Card card = null;
+        try {
+            //change the count with the URL
+            URL url = new URL("https://www.deckofcardsapi.com/api/deck/" + deckID + "/draw/?count=1");
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", "");
+            InputStream cardResponse = connection.getInputStream();
+            String fullResponse = "";
+            int letter = cardResponse.read();
 
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return id;
+            while (letter != -1) {
+                fullResponse += (char) letter;
+                letter = cardResponse.read();
+            }
+            connection.disconnect();
+           jsonObject = getJsonObjectFromString(fullResponse);
+           JsonArray jsonArray = jsonObject.getJsonArray("cards");
+           String code = ((JsonObject) jsonArray.get(0)).getString("code");
+           String image = ((JsonObject) jsonArray.get(0)).getString("image");
+           card = new Card(code, image);
 
-	}
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        //System.out.println("\n ran once");
+        return card;
+    }
 
 }
