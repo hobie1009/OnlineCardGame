@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -22,7 +23,12 @@ public class APIPractice implements ActionListener {
     JFrame frame = new JFrame();
     JPanel panel = new JPanel();
     JButton drawCard = new JButton();
+    JButton stay = new JButton();
     JLabel label  = new JLabel();
+    JLabel display = new JLabel();
+
+    int cardCount = 1;
+    int valueNum = 0;
     String address;
     public static Card initial;
 
@@ -88,21 +94,51 @@ public class APIPractice implements ActionListener {
 
     //OTHER METHODS
     public void initGUI() throws IOException {
+        //Frame
         frame = new JFrame("BlackJack");
-        frame.setSize(300, 300);
+        //Change this preffered size
+        frame.setPreferredSize(new Dimension(1000, 480));
+        frame.setLocation(980, 220);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+        frame.add(panel);
+
+        //Buttons
+        drawCard.setPreferredSize(new Dimension(980, 50));
+        drawCard.setText("Draw Card");
+        drawCard.addActionListener(this);
+        stay.setPreferredSize(new Dimension(980, 50));
+        stay.setText("Stay");
+        stay.setLocation(0, 400);
+        valueNum = initial.getValue();
+
+        //Label
+        
+
+        panel.add(drawCard);
+        //panel.add(stay);
 
         label = new JLabel();
-        frame.add(label);
-
         address = initial.getURL();
-        label.setIcon(new ImageIcon(new URL(address)));
-        frame.add(label);
-        frame.setVisible(true);
+        Image image = getImage(new URL(address));
+        label.setIcon(new ImageIcon(image));
+        panel.add(label);
+        panel.add(stay);
         frame.pack();
 
 
+    }
+
+    public Image getImage(URL url)  {
+        try {
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestProperty("User-Agent", "");
+            Image image = ImageIO.read(httpURLConnection.getInputStream());
+            return image;
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     //ACTION LISTENER
@@ -110,14 +146,25 @@ public class APIPractice implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == drawCard){
             try {
-                panel.remove(label);
-                System.out.println(initial.getURL());
-                label = new JLabel(new ImageIcon(new URL(initial.getURL())));
-                //label.setIcon(new ImageIcon(new URL(initial.getURL())));
-                label.setText("Not Label");
+                Card card = getCard();
+                cardCount++;
+                if (cardCount > 4 && cardCount <= 8){
+                    frame.setPreferredSize(new Dimension(frame.getWidth() + 250, 480));
+                    drawCard.setPreferredSize(new Dimension(drawCard.getWidth() + 250, 50));
+                    stay.setPreferredSize(new Dimension(stay.getWidth() + 250, 50));
+                    frame.setLocation(frame.getX() - 100, frame.getY());
+                }
+                JLabel label = new JLabel();
+                Image image = getImage(new URL(card.getURL()));
+                label.setIcon(new ImageIcon(image));
+                panel.remove(stay);
                 panel.add(label);
+                panel.add(stay);
                 frame.pack();
-            } catch (MalformedURLException ex) {
+                valueNum += card.getValue();
+                System.out.println("Total value: " + valueNum);
+                System.out.println("Total Cards: " + cardCount);
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
