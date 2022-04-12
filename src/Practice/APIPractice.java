@@ -17,6 +17,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Random;
 
 public class APIPractice implements ActionListener {
     public static String deckID = "";
@@ -26,6 +27,7 @@ public class APIPractice implements ActionListener {
     JButton stay = new JButton();
     JLabel label  = new JLabel();
     JLabel display = new JLabel();
+    JLabel dealer = new JLabel();
 
     int cardCount = 1;
     int valueNum = 0;
@@ -97,7 +99,7 @@ public class APIPractice implements ActionListener {
         //Frame
         frame = new JFrame("BlackJack");
         //Change this preffered size
-        frame.setPreferredSize(new Dimension(1000, 480));
+        frame.setPreferredSize(new Dimension(1000, 530));
         frame.setLocation(980, 220);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
@@ -110,11 +112,17 @@ public class APIPractice implements ActionListener {
         stay.setPreferredSize(new Dimension(980, 50));
         stay.setText("Stay");
         stay.setLocation(0, 400);
+        stay.addActionListener(this);
         valueNum = initial.getValue();
 
         //Label
-        
+        display.setPreferredSize(new Dimension(200, 50));
+        display.setText("Score: " + initial.getValue());
+        dealer.setPreferredSize(new Dimension(200, 50));
+        dealer.setText("Dealer Score: ");
 
+        panel.add(display);
+        panel.add(dealer);
         panel.add(drawCard);
         //panel.add(stay);
 
@@ -149,7 +157,7 @@ public class APIPractice implements ActionListener {
                 Card card = getCard();
                 cardCount++;
                 if (cardCount > 4 && cardCount <= 8){
-                    frame.setPreferredSize(new Dimension(frame.getWidth() + 250, 480));
+                    frame.setPreferredSize(new Dimension(frame.getWidth() + 250, 530));
                     drawCard.setPreferredSize(new Dimension(drawCard.getWidth() + 250, 50));
                     stay.setPreferredSize(new Dimension(stay.getWidth() + 250, 50));
                     frame.setLocation(frame.getX() - 100, frame.getY());
@@ -162,11 +170,21 @@ public class APIPractice implements ActionListener {
                 panel.add(stay);
                 frame.pack();
                 valueNum += card.getValue();
+                if (valueNum > 21){
+                    display.setText("Score: " + valueNum + " YOU LOST!");
+                    dealer.setText("Dealer wins!");
+                } else {
+                    display.setText("Score: " + valueNum);
+                }
                 System.out.println("Total value: " + valueNum);
                 System.out.println("Total Cards: " + cardCount);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+        }
+        if(e.getSource() == stay){
+            drawCard.removeActionListener(this);
+            
         }
     }
 }
