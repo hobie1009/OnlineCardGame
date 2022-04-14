@@ -184,7 +184,14 @@ public class APIPractice implements ActionListener {
         }
         if(e.getSource() == stay){
             drawCard.removeActionListener(this);
-            
+            Random rand = new Random();
+            int dealerScore = rand.nextInt(25);
+            if (dealerScore > 21){
+                dealer.setText("Dealer score: " + dealerScore + " you win!");
+            } else if (dealerScore < valueNum){
+                dealer.setText("Dealer score: " + dealerScore + " you win!");
+            } else { dealer.setText("Dealer score: " + dealerScore + " Dealer wins!"); }
+            stay.removeActionListener(this);
         }
     }
 }
