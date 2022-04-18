@@ -25,6 +25,7 @@ public class APIPractice implements ActionListener {
     JPanel panel = new JPanel();
     JButton drawCard = new JButton();
     JButton stay = new JButton();
+    JButton playAgain = new JButton();
     JLabel label  = new JLabel();
     JLabel display = new JLabel();
     JLabel dealer = new JLabel();
@@ -34,15 +35,14 @@ public class APIPractice implements ActionListener {
     String address;
     public static Card initial;
 
-    //Either make newDeck static or create APIPractice Object
-    public static void main(String [] args) throws IOException {
-        APIPractice apiPractice = new APIPractice();
-        deckID = apiPractice.newDeck();
-        initial = apiPractice.getCard();
-        System.out.println("Deck ID: " + apiPractice.deckID);
-        System.out.println("Card URL: " + initial.getURL());
 
-        apiPractice.initGUI();
+    public static void main(String [] args) {
+        APIPractice apiPractice = new APIPractice();
+        try {
+            apiPractice.startGame();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -114,6 +114,9 @@ public class APIPractice implements ActionListener {
         stay.setLocation(0, 400);
         stay.addActionListener(this);
         valueNum = initial.getValue();
+        playAgain.setPreferredSize(new Dimension(frame.getWidth(), 50));
+        playAgain.setText("Play Again");
+        playAgain.addActionListener(this);
 
         //Label
         display.setPreferredSize(new Dimension(200, 50));
@@ -136,7 +139,12 @@ public class APIPractice implements ActionListener {
 
 
     }
-
+    public boolean checkAce(Card card){
+        if (card.getValueAsString().contains("A")){
+            System.out.println("ITS AN ACEEEE");
+            return true;
+        } else {return false;}
+    }
     public Image getImage(URL url)  {
         try {
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -148,6 +156,14 @@ public class APIPractice implements ActionListener {
         }
         return null;
     }
+    public void startGame() throws IOException {
+        deckID = newDeck();
+        initial = getCard();
+        System.out.println("Deck ID: " + deckID);
+        System.out.println("Card URL: " + initial.getURL());
+        initGUI();
+    }
+    public void resetGame(){}
 
     //ACTION LISTENER
     @Override
@@ -173,11 +189,17 @@ public class APIPractice implements ActionListener {
                 if (valueNum > 21){
                     display.setText("Score: " + valueNum + " YOU LOST!");
                     dealer.setText("Dealer wins!");
+                    stay.removeActionListener(this);
+                    drawCard.removeActionListener(this);
+                    playAgain.setPreferredSize(new Dimension(frame.getWidth(), 50));
+                    panel.add(playAgain);
+                    frame.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()+50));
+                    frame.pack();
                 } else {
                     display.setText("Score: " + valueNum);
                 }
-                System.out.println("Total value: " + valueNum);
-                System.out.println("Total Cards: " + cardCount);
+                /*System.out.println("Total value: " + valueNum);
+                System.out.println("Total Cards: " + cardCount);*/
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -185,13 +207,17 @@ public class APIPractice implements ActionListener {
         if(e.getSource() == stay){
             drawCard.removeActionListener(this);
             Random rand = new Random();
-            int dealerScore = rand.nextInt(25);
+            int dealerScore = rand.nextInt(25) + 1;
             if (dealerScore > 21){
                 dealer.setText("Dealer score: " + dealerScore + " you win!");
             } else if (dealerScore < valueNum){
                 dealer.setText("Dealer score: " + dealerScore + " you win!");
             } else { dealer.setText("Dealer score: " + dealerScore + " Dealer wins!"); }
             stay.removeActionListener(this);
+            playAgain.setPreferredSize(new Dimension(frame.getWidth(), 50));
+            panel.add(playAgain);
+            frame.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()+50));
+            frame.pack();
         }
     }
 }
