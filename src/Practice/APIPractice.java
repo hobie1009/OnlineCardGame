@@ -21,14 +21,14 @@ import java.util.Random;
 
 public class APIPractice implements ActionListener {
     public static String deckID = "";
-    JFrame frame = new JFrame();
-    JPanel panel = new JPanel();
-    JButton drawCard = new JButton();
-    JButton stay = new JButton();
-    JButton playAgain = new JButton();
-    JLabel label  = new JLabel();
-    JLabel display = new JLabel();
-    JLabel dealer = new JLabel();
+    JFrame frame = new JFrame("BlackJack");
+    JPanel panel;
+    JButton drawCard;
+    JButton stay;
+    JButton playAgain;
+    JLabel label;
+    JLabel display;
+    JLabel dealer;
 
     int cardCount = 1;
     int valueNum = 0;
@@ -96,8 +96,19 @@ public class APIPractice implements ActionListener {
 
     //OTHER METHODS
     public void initGUI() throws IOException {
+        //Init everything
+        //frame = new JFrame("BlackJack");
+        panel = new JPanel();
+        drawCard = new JButton();
+        stay = new JButton();
+        playAgain = new JButton();
+        label  = new JLabel();
+        display = new JLabel();
+        dealer = new JLabel();
+
+
         //Frame
-        frame = new JFrame("BlackJack");
+        //frame = new JFrame("BlackJack");
         //Change this preffered size
         frame.setPreferredSize(new Dimension(1000, 530));
         frame.setLocation(980, 220);
@@ -139,11 +150,14 @@ public class APIPractice implements ActionListener {
 
 
     }
-    public boolean checkAce(Card card){
+    public void checkAce(Card card){
         if (card.getValueAsString().contains("A")){
-            System.out.println("ITS AN ACEEEE");
-            return true;
-        } else {return false;}
+           if(valueNum + 11 <= 21){
+               card.setValue(11);
+           } else {
+               card.setValue(1);
+           }
+        }
     }
     public Image getImage(URL url)  {
         try {
@@ -159,18 +173,27 @@ public class APIPractice implements ActionListener {
     public void startGame() throws IOException {
         deckID = newDeck();
         initial = getCard();
+        checkAce(initial);
         System.out.println("Deck ID: " + deckID);
         System.out.println("Card URL: " + initial.getURL());
         initGUI();
     }
-    public void resetGame(){}
+    public void resetGame() throws IOException {
+        frame.remove(panel);
+        cardCount=0;
+        valueNum = 0;
+        startGame();
+    }
 
     //ACTION LISTENER
+    //ADD play again, dealer cards, and ace value changes
     @Override
     public void actionPerformed(ActionEvent e) {
+        //Draw Card
         if(e.getSource() == drawCard){
             try {
                 Card card = getCard();
+                checkAce(card);
                 cardCount++;
                 if (cardCount > 4 && cardCount <= 8){
                     frame.setPreferredSize(new Dimension(frame.getWidth() + 250, 530));
@@ -198,15 +221,17 @@ public class APIPractice implements ActionListener {
                 } else {
                     display.setText("Score: " + valueNum);
                 }
-                /*System.out.println("Total value: " + valueNum);
-                System.out.println("Total Cards: " + cardCount);*/
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
+        //Stay (the hand)
         if(e.getSource() == stay){
             drawCard.removeActionListener(this);
-            Random rand = new Random();
+            stay.removeActionListener(this);
+            int dealerTarget = new Random().nextInt(7) + 14;
+
+            /*Random rand = new Random();
             int dealerScore = rand.nextInt(25) + 1;
             if (dealerScore > 21){
                 dealer.setText("Dealer score: " + dealerScore + " you win!");
@@ -217,7 +242,15 @@ public class APIPractice implements ActionListener {
             playAgain.setPreferredSize(new Dimension(frame.getWidth(), 50));
             panel.add(playAgain);
             frame.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()+50));
-            frame.pack();
+            frame.pack();*/
+        }
+        //Play a new game of BlackJack
+        if(e.getSource() == playAgain){
+            try {
+                resetGame();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }
