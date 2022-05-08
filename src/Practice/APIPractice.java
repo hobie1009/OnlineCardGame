@@ -27,13 +27,17 @@ public class APIPractice implements ActionListener {
     JButton stay;
     JButton playAgain;
     JLabel label;
+    JLabel label2;
     JLabel display;
     JLabel dealer;
-
-    int cardCount = 1;
-    int valueNum = 0;
+    
+    int dealerNum = 0;
+    int cardCount = 2;
+    int TotalValueNum = 0;
     String address;
+    String address2;
     public static Card initial;
+    public static Card initial2;
 
 
     public static void main(String [] args) {
@@ -103,6 +107,7 @@ public class APIPractice implements ActionListener {
         stay = new JButton();
         playAgain = new JButton();
         label  = new JLabel();
+        label2 = new JLabel();
         display = new JLabel();
         dealer = new JLabel();
 
@@ -124,14 +129,15 @@ public class APIPractice implements ActionListener {
         stay.setText("Stay");
         stay.setLocation(0, 400);
         stay.addActionListener(this);
-        valueNum = initial.getValue();
+        TotalValueNum = initial.getValue() + initial2.getValue();
+        System.out.println("TotalValueNum = "+TotalValueNum);
         playAgain.setPreferredSize(new Dimension(frame.getWidth(), 50));
         playAgain.setText("Play Again");
         playAgain.addActionListener(this);
 
         //Label
         display.setPreferredSize(new Dimension(200, 50));
-        display.setText("Score: " + initial.getValue());
+        display.setText("Score: " + TotalValueNum);
         dealer.setPreferredSize(new Dimension(200, 50));
         dealer.setText("Dealer Score: ");
 
@@ -141,18 +147,22 @@ public class APIPractice implements ActionListener {
         //panel.add(stay);
 
         label = new JLabel();
+        label2 = new JLabel();
         address = initial.getURL();
+        address2=initial2.getURL();
         Image image = getImage(new URL(address));
+        Image image2 = getImage(new URL(address2));
         label.setIcon(new ImageIcon(image));
+        label2.setIcon(new ImageIcon(image2));
         panel.add(label);
+        panel.add(label2);
         panel.add(stay);
         frame.pack();
-
 
     }
     public void checkAce(Card card){
         if (card.getValueAsString().contains("A")){
-           if(valueNum + 11 <= 21){
+           if(TotalValueNum + 11 <= 21){
                card.setValue(11);
            } else {
                card.setValue(1);
@@ -173,15 +183,18 @@ public class APIPractice implements ActionListener {
     public void startGame() throws IOException {
         deckID = newDeck();
         initial = getCard();
+        initial2 = getCard();
         checkAce(initial);
+        checkAce(initial2);
         System.out.println("Deck ID: " + deckID);
         System.out.println("Card URL: " + initial.getURL());
+        System.out.println("Card 2 URL: " + initial2.getURL());
         initGUI();
     }
     public void resetGame() throws IOException {
         frame.remove(panel);
         cardCount=0;
-        valueNum = 0;
+        TotalValueNum = 0;
         startGame();
     }
 
@@ -208,9 +221,9 @@ public class APIPractice implements ActionListener {
                 panel.add(label);
                 panel.add(stay);
                 frame.pack();
-                valueNum += card.getValue();
-                if (valueNum > 21){
-                    display.setText("Score: " + valueNum + " YOU LOST!");
+                TotalValueNum += card.getValue();
+                if (TotalValueNum > 21){
+                    display.setText("Score: " + TotalValueNum + " YOU LOST!");
                     dealer.setText("Dealer wins!");
                     stay.removeActionListener(this);
                     drawCard.removeActionListener(this);
@@ -219,7 +232,7 @@ public class APIPractice implements ActionListener {
                     frame.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()+50));
                     frame.pack();
                 } else {
-                    display.setText("Score: " + valueNum);
+                    display.setText("Score: " + TotalValueNum);
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -231,18 +244,18 @@ public class APIPractice implements ActionListener {
             stay.removeActionListener(this);
             int dealerTarget = new Random().nextInt(7) + 14;
 
-            /*Random rand = new Random();
+            Random rand = new Random();
             int dealerScore = rand.nextInt(25) + 1;
             if (dealerScore > 21){
                 dealer.setText("Dealer score: " + dealerScore + " you win!");
-            } else if (dealerScore < valueNum){
+            } else if (dealerScore < TotalValueNum){
                 dealer.setText("Dealer score: " + dealerScore + " you win!");
             } else { dealer.setText("Dealer score: " + dealerScore + " Dealer wins!"); }
             stay.removeActionListener(this);
             playAgain.setPreferredSize(new Dimension(frame.getWidth(), 50));
             panel.add(playAgain);
             frame.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()+50));
-            frame.pack();*/
+            frame.pack();
         }
         //Play a new game of BlackJack
         if(e.getSource() == playAgain){
