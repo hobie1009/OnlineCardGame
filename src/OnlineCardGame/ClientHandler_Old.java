@@ -1,5 +1,7 @@
 package OnlineCardGame;
 
+import Blackjack.Card;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import javax.json.Json;
 import javax.json.JsonArray;

@@ -1,4 +1,4 @@
-package OnlineCardGame;
+package Blackjack;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,8 +9,8 @@ In our try catch is our main code. We create our server using a server socket, w
 The client accepts the server, and then a thread is created and started for our Card Game(Blackjack). The reason for the if statement is in case the server is null(not created or otherwise).
  */
 
-public class Blackjack {
-	public Blackjack() {
+public class BlackjackOld {
+	public BlackjackOld() {
 		try {
 			//ServerSocket --> Socket where the server is listening for connection
 			//Socket --> connection between the server socket and x computer(being a client) Socket will only have a value if the Server Socket has recieved a connection from the client.
@@ -30,7 +30,7 @@ public class Blackjack {
 		}
 	}
 	public static void main(String[] args) {
-		new Blackjack();
+		new BlackjackOld();
 		
 	}
 }
