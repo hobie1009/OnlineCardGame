@@ -152,7 +152,7 @@ public class Blackjack implements ActionListener {
     public void initDealer() throws IOException {
         dealerPanel = new JPanel();
 
-        dealerFrame.setPreferredSize(new Dimension(500, 700));
+        dealerFrame.setPreferredSize(new Dimension(700, 700));
         dealerFrame.setLocation(1400, 220);
         dealerFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         dealerFrame.setVisible(true);
