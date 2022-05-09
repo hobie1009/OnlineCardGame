@@ -1,6 +1,4 @@
-package Practice;
-
-import Blackjack.Card;
+package Blackjack;
 
 import javax.imageio.ImageIO;
 import javax.json.Json;
